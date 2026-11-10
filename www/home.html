@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#090a0f"><meta name="description" content="Discover trending movies and TV series, explore posters, ratings, cast, trailers and details on APLEX Movies."><meta property="og:type" content="website"><meta property="og:url" content="https://aplexmovies.vercel.app/"><meta property="og:site_name" content="APLEX Movies"><meta property="og:title" content="APLEX Movies — Discover Your Next Movie"><meta property="og:description" content="Discover trending movies and TV series, explore posters, ratings, cast, trailers and details on APLEX Movies."><meta property="og:image" content="https://aplexmovies.vercel.app/assets/aplex-share-card-v2.png"><meta property="og:image:secure_url" content="https://aplexmovies.vercel.app/assets/aplex-share-card-v2.png"><meta property="og:image:type" content="image/png"><meta property="og:image:alt" content="APLEX Movies cinematic cover"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="APLEX Movies — Discover Your Next Movie"><meta name="twitter:description" content="Discover trending movies and TV series, explore posters, ratings, cast, trailers and details on APLEX Movies."><meta name="twitter:image" content="https://aplexmovies.vercel.app/assets/aplex-share-card-v2.png"><meta name="twitter:image:alt" content="APLEX Movies logo and cinematic preview"><link rel="apple-touch-icon" href="https://aplexmovies.vercel.app/assets/favicon.png">
+  <meta name="description" content="Discover movies and TV shows, explore cast, screenshots and trailers on APLEX Movies.">
+  <title>APLEX Movies — Discover Your Next Movie</title><link rel="icon" href="https://aplexmovies.vercel.app/assets/favicon.png" type="image/png" sizes="512x512"><link rel="icon" href="https://aplexmovies.vercel.app/assets/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="assets/styles.css?v=20261028-tapfix">
+</head>
+<body>
+  <div class="top-strip"><span class="live-dot"></span> APLEX CINEMA <span class="strip-muted">/ DISCOVER SOMETHING WORTH WATCHING</span></div>
+  <header class="site-header"><div class="container header-inner">
+    <a class="brand" href="index.html"><span class="brand-icon"><img src="assets/favicon.png" alt="" width="43" height="43"></span><span>APLEX <b>MOVIES</b><small>YOUR NEXT WATCH STARTS HERE</small></span></a>
+    <nav class="main-nav"><a class="active" href="index.html">Home</a><a href="#browse">Browse</a></nav>
+  </div></header>
+  <main class="container main-content">
+    <section class="featured-rail" id="heroPanel" aria-label="Popular movies">
+      <div class="featured-head">
+        <div><p class="eyebrow"><span class="eyebrow-line"></span> <span id="featuredKicker">POPULAR MOVIES</span></p><h2 id="featuredHeading">Popular movies<span class="red-dot">.</span></h2></div>
+        
+      </div>
+      <div class="featured-window" id="featuredWindow" aria-roledescription="carousel" aria-label="Popular titles">
+        <div class="featured-track" id="featuredTrack"><div class="featured-message">Loading popular movies…</div></div>
+        <button class="featured-arrow featured-prev" type="button" id="featuredPrev" aria-label="Previous featured title">‹</button>
+        <button class="featured-arrow featured-next" type="button" id="featuredNext" aria-label="Next featured title">›</button>
+        <div class="featured-controls" id="featuredControls" aria-label="Choose featured title"></div>
+      </div>
+    </section>
+    <section class="search-panel" aria-label="Movie and TV search"><form id="searchForm" class="search-form"><span class="search-icon">⌕</span><input id="searchInput" type="search" placeholder="Search movies and TV shows..." autocomplete="off"><button type="submit">Search <span>↗</span></button></form><div class="search-hint">Press Enter to search. Use Filters to narrow results by genre, year or language.</div></section>
+    <section class="browse-section" id="browse">
+      <div class="section-head"><div><p class="eyebrow"><span class="eyebrow-line"></span> PICK YOUR NEXT WATCH</p><h2 id="libraryHeading">Popular movies<span class="red-dot">.</span></h2></div>
+        <div class="browse-controls"><div class="media-switch" role="group" aria-label="Select content type"><button class="media-switch-button active" type="button" data-media="movie" aria-pressed="true">Movies</button><button class="media-switch-button" type="button" data-media="tv" aria-pressed="false">TV Shows</button></div><button class="filter-open-button" type="button" id="openFilters" aria-haspopup="dialog" aria-controls="filterDialog"><span aria-hidden="true">☷</span> Filters <span class="filter-count hidden" id="filterCount">0</span></button><label class="sr-only" for="sortSelect">Sort titles</label><select id="sortSelect" aria-label="Sort titles"><option value="popularity.desc">Most popular</option><option value="primary_release_date.desc">Newest first</option><option value="vote_average.desc">Highest rated</option><option value="title.asc">Title A–Z</option></select><span id="resultCount" class="muted small">Loading…</span></div>
+      </div>
+      <div id="personBanner" class="person-banner hidden"><div><span class="eyebrow">CAST DISCOVERY</span><h3 id="personHeading">More titles</h3><p id="personSubheading">Explore other movies and shows featuring this person.</p></div><button type="button" class="secondary-button" id="clearPerson">Back to library</button></div>
+      <div id="activeFilterSummary" class="active-filter-summary hidden"></div>
+      <div id="searchResultsInfo" class="search-results-info hidden"><div><span class="search-results-kicker">SEARCH RESULTS</span><strong id="searchResultsQuery"></strong><span id="searchResultsSub" class="muted small">Movie library</span></div><button type="button" id="clearSearchButton" class="secondary-button">Clear search ×</button></div>
+      <div id="movieGrid" class="movie-grid" aria-live="polite"><div class="loading-card">Loading movies…</div></div>
+      <div class="load-more-wrap"><button type="button" class="secondary-button" id="loadMoreButton">Load more titles</button><p id="paginationNote" class="muted small"></p></div>
+      <div id="emptyState" class="empty-state hidden"><div class="empty-symbol">▣</div><h3>No titles found</h3><p>Try a different search or change the selected filters.</p><button type="button" class="secondary-button" id="clearEmptyFilters">Clear search and filters</button></div>
+    </section>
+    <section class="about-strip" id="about"><div><p class="eyebrow">BUILT FOR MOVIE FANS</p><h2>One library.<br><span>Endless stories.</span></h2></div><p>Explore movies and TV series in one place. Open any title to view its synopsis, trailer, screenshots, cast members and available player options.</p></section>
+  </main>
+  <dialog id="filterDialog" class="filter-dialog" aria-labelledby="filterDialogTitle"><form method="dialog" id="filterDialogForm"><div class="filter-dialog-head"><div><p class="eyebrow">MAKE IT YOURS</p><h2 id="filterDialogTitle">Filter titles</h2></div><button type="button" class="filter-close" id="closeFilters" aria-label="Close filters">×</button></div><div class="filter-dialog-fields"><label>Genre / Category<select id="genreFilter"><option value="">All genres</option></select></label><label>Release year<select id="yearFilter"><option value="">All years</option></select></label><label>Original language<select id="languageFilter"><option value="">All languages</option></select></label></div><p class="filter-dialog-note">Filters are tucked away here to keep the movie library clean on mobile and desktop.</p><div class="filter-dialog-actions"><button type="button" class="secondary-button" id="clearFilters">Reset</button><button type="button" class="primary-button" id="applyFilters">Apply filters <span>↗</span></button></div></form></dialog>
+  <footer class="site-footer"><div class="container footer-inner"><a class="footer-brand" href="index.html">APLEX<span>+</span> MOVIES</a><div class="footer-links"><a href="index.html">Home</a><a href="#browse">Browse library</a></div><small>© <span id="year"></span> APLEX Movies.</small></div></footer>
+  <script type="module" src="js/theme.js"></script><script type="module" src="js/home.js"></script>  <script src="js/mobile-bridge.js"></script>
+</body></html>
