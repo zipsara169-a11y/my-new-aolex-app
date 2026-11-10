@@ -1,0 +1,8 @@
+APLEX Movies Android App
+========================
+App ID: com.aplexmovies.app
+Capacitor: 8.6.0
+Web assets: www/
+Android build: GitHub Actions (.github/workflows/android-apk.yml)
+
+See README-SI.md for Sinhala setup instructions.
