@@ -26,11 +26,4 @@ xml = '''<?xml version="1.0" encoding="utf-8"?>
 (adaptive_dir / 'ic_launcher.xml').write_text(xml, encoding='utf-8')
 (adaptive_dir / 'ic_launcher_round.xml').write_text(xml, encoding='utf-8')
 
-values = RES / 'values'
-values.mkdir(parents=True, exist_ok=True)
-colors = values / 'colors.xml'
-existing = colors.read_text(encoding='utf-8') if colors.exists() else '<resources>\n</resources>\n'
-if 'ic_launcher_background' not in existing:
-    existing = existing.replace('</resources>', '    <color name="ic_launcher_background">#090A0F</color>\n</resources>')
-colors.write_text(existing, encoding='utf-8')
 print('APLEX launcher icons generated successfully.')
