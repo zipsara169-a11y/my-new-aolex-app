@@ -1,0 +1,38 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "rewrites": [
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": {
+            "re": "(?i)(WhatsApp|facebookexternalhit|Facebot|meta-externalagent|meta-externalfetcher|Twitterbot|TelegramBot|Discordbot|LinkedInBot)"
+          }
+        }
+      ],
+      "destination": "/api/home-share"
+    },
+    {
+      "source": "/",
+      "destination": "/home.html"
+    },
+    {
+      "source": "/share/movie/:id",
+      "destination": "/api/share?type=movie&id=:id"
+    },
+    {
+      "source": "/share/tv/:id",
+      "destination": "/api/share?type=tv&id=:id"
+    },
+    {
+      "source": "/index.html",
+      "destination": "/home.html"
+    },
+    {
+      "source": "/admin",
+      "destination": "/admin.html"
+    }
+  ]
+}
