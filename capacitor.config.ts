@@ -1,32 +1,26 @@
-{
-  "name": "aplex-movies-android",
-  "version": "1.0.0",
-  "private": true,
-  "description": "APLEX Movies Android application powered by Capacitor.",
-  "author": "APLEX Movies",
-  "license": "UNLICENSED",
-  "engines": {
-    "node": ">=22"
+import type { CapacitorConfig } from '@capacitor/cli';
+
+const config: CapacitorConfig = {
+  appId: 'com.aplexmovies.app',
+  appName: 'APLEX Movies',
+  webDir: 'www',
+  backgroundColor: '#090A0F',
+  loggingBehavior: 'none',
+
+  android: {
+    backgroundColor: '#090A0F',
+    allowMixedContent: false,
+    zoomEnabled: false,
+    webContentsDebuggingEnabled: false
   },
-  "scripts": {
-    "build:bridge": "esbuild src/mobile-bridge.js --bundle --format=iife --target=es2020 --outfile=www/js/mobile-bridge.js",
-    "android:add": "cap add android",
-    "android:sync": "npm run build:bridge && cap sync android",
-    "android:open": "cap open android",
-    "android:run": "npm run android:sync && cap run android",
-    "android:debug": "npm run android:sync && cd android && ./gradlew assembleDebug"
-  },
-  "dependencies": {
-    "@capacitor/android": "8.6.0",
-    "@capacitor/app": "8.1.2",
-    "@capacitor/browser": "8.0.5",
-    "@capacitor/core": "8.6.0",
-    "@capacitor/status-bar": "8.0.4",
-    "@capacitor/splash-screen": "8.0.2"
-  },
-  "devDependencies": {
-    "@capacitor/cli": "8.6.0",
-    "esbuild": "^0.25.11",
-    "typescript": "^5.9.3"
+
+  plugins: {
+    SplashScreen: {
+      launchShowDuration: 450,
+      backgroundColor: '#090A0F',
+      showSpinner: false
+    }
   }
-}
+};
+
+export default config;
