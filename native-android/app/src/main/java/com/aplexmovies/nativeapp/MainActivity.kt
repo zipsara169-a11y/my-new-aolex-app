@@ -121,7 +121,7 @@ private object Backend {
         val names=(0 until genres.length()).mapNotNull{genres.optJSONObject(it)?.s("name")}.joinToString(", ")
         val body=JSONObject().put("title",title).put("slug",title.lowercase().replace(Regex("[^a-z0-9]+"),"-").trim('-')+"-"+d.optInt("id"))
             .put("imdb_id",imdb.trim()).put("tmdb_id",d.optInt("id")).put("overview",d.s("overview"))
-            .put("release_date",d.s("release_date").ifBlank{JSONObject.NULL}).put("language",d.s("original_language"))
+            .put("release_date",if(d.s("release_date").isBlank()) JSONObject.NULL else d.s("release_date")).put("language",d.s("original_language"))
             .put("runtime",d.optInt("runtime")).put("rating",d.optDouble("vote_average")).put("genres",names)
             .put("poster_url","https://image.tmdb.org/t/p/w500${d.s("poster_path")}")
             .put("backdrop_url","https://image.tmdb.org/t/p/w1280${d.s("backdrop_path")}")
