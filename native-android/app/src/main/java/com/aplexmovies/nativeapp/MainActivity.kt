@@ -125,7 +125,7 @@ private object Backend {
             .put("runtime",d.optInt("runtime")).put("rating",d.optDouble("vote_average")).put("genres",names)
             .put("poster_url","https://image.tmdb.org/t/p/w500${d.s("poster_path")}")
             .put("backdrop_url","https://image.tmdb.org/t/p/w1280${d.s("backdrop_path")}")
-            .put("status","draft").put("download_url",download.ifBlank{JSONObject.NULL})
+            .put("status","draft").put("download_url",if(download.isBlank()) JSONObject.NULL else download)
         val created=JSONArray(http("$SB/rest/v1/movies","POST",body.toString(),token,true))
         if(created.length()>0&&player.isNotBlank()){
             val id=created.getJSONObject(0).s("id")
