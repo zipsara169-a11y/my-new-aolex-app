@@ -171,7 +171,7 @@ class MainActivity:ComponentActivity(){
                     if(loading&&shown.isEmpty())Box(Modifier.weight(1f).fillMaxWidth(),contentAlignment=Alignment.Center){CircularProgressIndicator(color=accent)}
                     else if(error.isNotBlank()&&shown.isEmpty())Box(Modifier.weight(1f).fillMaxWidth(),contentAlignment=Alignment.Center){Text(error,color=Color.White)}
                     else LazyVerticalGrid(GridCells.Fixed(2),Modifier.weight(1f),contentPadding=PaddingValues(14.dp),horizontalArrangement=Arrangement.spacedBy(12.dp),verticalArrangement=Arrangement.spacedBy(13.dp)){
-                        items(shown,key{"${it.type}-${it.id}"}){f->FilmCard(f){
+                        items(items=shown, key={ film -> "${film.type}-${film.id}" }) { f -> FilmCard(f) {
                             chosen=f;details=null;players=emptyList();download=null;loading=true
                             scope.launch{runCatching{val d=Backend.detail(f);val id=Backend.publishedId(f.id);Triple(d,id?.let{Backend.players(it)}.orEmpty(),id?.let{Backend.download(it)})}
                                 .onSuccess{details=it.first;players=it.second;download=it.third}.onFailure{error=it.message?:"Could not load details."};loading=false}
