@@ -133,14 +133,14 @@ async function renderAuthorizedMagnetLink() {
   if (!host) return;
   host.replaceChildren();
   host.classList.add('hidden');
-  if (!supabaseConfigured || !supabase || !/^\\d+$/.test(String(currentId))) return;
+  if (!supabaseConfigured || !supabase || !/^\d+$/.test(String(currentId))) return;
   try {
     const { data, error } = await supabase.from('title_magnet_links')
       .select('title,quality,magnet_uri,is_active')
       .eq('tmdb_id', Number(currentId)).eq('media_type', currentType).eq('is_active', true).maybeSingle();
     if (error || !data?.magnet_uri) return;
     const magnet = String(data.magnet_uri).trim();
-    if (!/^magnet:\\?xt=urn:btih:(?:[a-f0-9]{40}|[a-z2-7]{32})(?:&|$)/i.test(magnet)) return;
+    if (!/^magnet:\?xt=urn:btih:(?:[a-f0-9]{40}|[a-z2-7]{32})(?:&|$)/i.test(magnet)) return;
 
     const heading = document.createElement('strong');
     heading.className = 'title-magnet-heading';
