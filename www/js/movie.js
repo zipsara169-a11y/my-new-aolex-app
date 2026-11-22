@@ -128,6 +128,58 @@ function renderSimilar(results) {
   }).join('');
   section.classList.remove('hidden');
 }
+
+async function renderAuthorizedDirectLinks() {
+  const host = document.getElementById('titleDirectSlot');
+  if (!host) return;
+  host.replaceChildren();
+  host.classList.add('hidden');
+  if (!supabaseConfigured || !supabase || !/^\\d+$/.test(String(currentId))) return;
+  try {
+    const { data, error } = await supabase.from('title_direct_links')
+      .select('title,quality,button_text,direct_url,is_active')
+      .eq('tmdb_id', Number(currentId)).eq('media_type', currentType).eq('is_active', true)
+      .order('quality', { ascending: true });
+    if (error || !Array.isArray(data) || !data.length) return;
+    const links = data.filter(row => {
+      try { const url = new URL(String(row.direct_url || '').trim()); return ['http:', 'https:'].includes(url.protocol); }
+      catch { return false; }
+    });
+    if (!links.length) return;
+    const heading = document.createElement('strong');
+    heading.className = 'title-magnet-heading';
+    heading.textContent = 'Direct download options';
+    heading.style.flexBasis = '100%';
+    host.appendChild(heading);
+    links.forEach(row => {
+      const link = document.createElement('a');
+      link.className = 'download-button';
+      link.href = String(row.direct_url).trim();
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      link.setAttribute('aria-label', `Download ${getTitle(currentTitle)} ${row.quality || ''}`.trim());
+      const icon = document.createElement('span');
+      icon.setAttribute('aria-hidden', 'true');
+      icon.textContent = '↓';
+      const label = document.createElement('span');
+      label.textContent = row.button_text || `Download ${row.quality || ''}`.trim();
+      const arrow = document.createElement('b');
+      arrow.setAttribute('aria-hidden', 'true');
+      arrow.textContent = '↗';
+      link.append(icon, label, arrow);
+      host.appendChild(link);
+    });
+    const note = document.createElement('small');
+    note.className = 'title-magnet-note';
+    note.textContent = 'Links are supplied by the site administrator. Check the source and your access rights before downloading.';
+    host.appendChild(note);
+    host.classList.remove('hidden');
+  } catch (_) {
+    host.replaceChildren();
+    host.classList.add('hidden');
+  }
+}
+
 async function renderAuthorizedMagnetLink() {
   const host = document.getElementById('titleMagnetSlot');
   if (!host) return;
@@ -393,6 +445,7 @@ async function loadTMDBTitle(id, type) {
   renderCast(details.credits?.cast || []);
   renderSimilar(details.recommendations?.results || []);
   renderInfo(details);
+  await renderAuthorizedDirectLinks();
   await renderAuthorizedMagnetLink();
   await renderArchiveLegalTorrents();
   loading.classList.add('hidden');
