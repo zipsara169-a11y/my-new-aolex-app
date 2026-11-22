@@ -134,7 +134,7 @@ async function renderAuthorizedDirectLinks() {
   if (!host) return;
   host.replaceChildren();
   host.classList.add('hidden');
-  if (!supabaseConfigured || !supabase || !/^\\d+$/.test(String(currentId))) return;
+  if (!supabaseConfigured || !supabase || !/^\d+$/.test(String(currentId))) return;
   try {
     const { data, error } = await supabase.from('title_direct_links')
       .select('title,quality,button_text,direct_url,is_active')
