@@ -332,6 +332,98 @@ async function deleteTitleMagnet(id) {
   await loadTitleMagnetLinks();
 }
 
+
+let titleDirectRows = [];
+let titleDirectTableReady = false;
+function renderTitleDirectRows() {
+  $('titleDirectCount').textContent = `${titleDirectRows.length} link${titleDirectRows.length === 1 ? '' : 's'}`;
+  $('titleDirectList').innerHTML = titleDirectRows.length ? titleDirectRows.map(row => `<article class="download-admin-row">
+    <div class="download-status-mark ${row.is_active ? 'is-on' : 'is-off'}">${row.is_active ? 'ON' : 'OFF'}</div>
+    <div class="download-admin-info"><strong>${escapeHtml(row.title || 'Untitled')} · ${escapeHtml(row.media_type === 'tv' ? 'TV Show' : 'Movie')}</strong><span>TMDB ID ${Number(row.tmdb_id)} · ${escapeHtml(row.quality || 'Direct')}</span><small>${escapeHtml(row.direct_url || '')} · ${row.is_active ? '<i class="status-published">Enabled</i>' : '<i class="status-draft">Disabled</i>'}</small></div>
+    <div class="row-actions"><button class="small-outline" type="button" data-direct-edit="${escapeHtml(row.id)}">Edit</button><button class="small-outline" type="button" data-direct-toggle="${escapeHtml(row.id)}">${row.is_active ? 'Disable' : 'Enable'}</button><button class="small-outline danger-button" type="button" data-direct-delete="${escapeHtml(row.id)}">Delete</button></div>
+  </article>`).join('') : '<div class="no-items">No direct links yet. Add a direct URL you are authorized to distribute.</div>';
+}
+async function loadTitleDirectLinks() {
+  try {
+    const result = await supabase.from('title_direct_links')
+      .select('id,tmdb_id,media_type,title,quality,button_text,direct_url,is_active,created_at')
+      .order('created_at', { ascending: false });
+    if (result.error) throw result.error;
+    titleDirectTableReady = true;
+    titleDirectRows = result.data || [];
+    $('titleDirectMigrationNotice').classList.add('hidden');
+    renderTitleDirectRows();
+    return true;
+  } catch (_) {
+    titleDirectTableReady = false;
+    $('titleDirectMigrationNotice').classList.remove('hidden');
+    $('titleDirectCount').textContent = 'Setup needed';
+    $('titleDirectList').innerHTML = '<div class="no-items">Run website-source/supabase-title-direct-links-migration.sql in your Supabase SQL Editor, then reload.</div>';
+    return false;
+  }
+}
+function clearTitleDirectForm() {
+  $('titleDirectForm').reset();
+  $('directMediaType').value = 'movie';
+  $('directQuality').value = '1080p';
+  $('directButtonText').value = 'Download 1080p';
+  $('directRightsConfirm').checked = false;
+}
+async function saveTitleDirectLink(event) {
+  event.preventDefault();
+  if (!titleDirectTableReady) { message('titleDirectFormMessage', 'Run the direct-links SQL migration in Supabase first.', 'error'); return; }
+  const tmdbId = Number($('directTmdbId').value);
+  const mediaType = $('directMediaType').value === 'tv' ? 'tv' : 'movie';
+  const title = $('directTitle').value.trim();
+  const quality = $('directQuality').value;
+  const buttonText = $('directButtonText').value.trim() || `Download ${quality}`;
+  const directUrl = safeHttpUrl($('directUrl').value.trim());
+  if (!Number.isSafeInteger(tmdbId) || tmdbId <= 0) { message('titleDirectFormMessage', 'Enter a valid numeric TMDB ID.', 'error'); return; }
+  if (!title) { message('titleDirectFormMessage', 'Enter the exact title name.', 'error'); return; }
+  if (!directUrl) { message('titleDirectFormMessage', 'Enter a valid HTTP or HTTPS direct URL.', 'error'); return; }
+  if (!$('directRightsConfirm').checked) { message('titleDirectFormMessage', 'Confirm that you own this content or have permission to distribute it.', 'error'); return; }
+  const payload = { tmdb_id: tmdbId, media_type: mediaType, title, quality, button_text: buttonText, direct_url: directUrl, is_active: true, updated_at: new Date().toISOString() };
+  $('saveTitleDirectBtn').disabled = true;
+  message('titleDirectFormMessage', 'Saving direct download link…');
+  try {
+    const result = await supabase.from('title_direct_links').upsert(payload, { onConflict: 'tmdb_id,media_type,quality' }).select('id').single();
+    if (result.error) throw result.error;
+    await loadTitleDirectLinks();
+    clearTitleDirectForm();
+    message('titleDirectFormMessage', 'Saved. The direct download button will appear on the matching TMDB title page.', 'success');
+  } catch (error) { message('titleDirectFormMessage', friendlyError(error), 'error'); }
+  finally { $('saveTitleDirectBtn').disabled = false; }
+}
+function editTitleDirectLink(id) {
+  const row = titleDirectRows.find(item => item.id === id);
+  if (!row) return;
+  $('directTmdbId').value = row.tmdb_id;
+  $('directMediaType').value = row.media_type;
+  $('directTitle').value = row.title || '';
+  $('directQuality').value = row.quality || '1080p';
+  $('directButtonText').value = row.button_text || `Download ${row.quality || ''}`.trim();
+  $('directUrl').value = row.direct_url || '';
+  $('directRightsConfirm').checked = false;
+  $('titleDirectEditor').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  message('titleDirectFormMessage', 'Editing this TMDB mapping. Confirm distribution rights again before saving.', 'info');
+}
+async function toggleTitleDirectLink(id) {
+  const row = titleDirectRows.find(item => item.id === id);
+  if (!row) return;
+  const { error } = await supabase.from('title_direct_links').update({ is_active: !row.is_active, updated_at: new Date().toISOString() }).eq('id', id);
+  if (error) { message('titleDirectListMessage', friendlyError(error), 'error'); return; }
+  await loadTitleDirectLinks();
+  message('titleDirectListMessage', `Direct link ${row.is_active ? 'disabled' : 'enabled'}.`, 'success');
+}
+async function deleteTitleDirectLink(id) {
+  const row = titleDirectRows.find(item => item.id === id);
+  if (!row || !confirm(`Delete the ${row.quality} direct link for “${row.title}”?`)) return;
+  const { error } = await supabase.from('title_direct_links').delete().eq('id', id);
+  if (error) { message('titleDirectListMessage', friendlyError(error), 'error'); return; }
+  await loadTitleDirectLinks();
+  message('titleDirectListMessage', 'Direct download link deleted.', 'success');
+}
+
 async function startAdmin(user) {
   const { data: admin, error } = await supabase.from('site_admins').select('user_id').eq('user_id', user.id).maybeSingle();
   if (error) throw error;
@@ -343,7 +435,7 @@ async function startAdmin(user) {
   $('loginWrap').classList.add('hidden');
   $('adminApp').classList.remove('hidden');
   $('logoutBtn').classList.remove('hidden');
-  await Promise.all([loadGlobalTheme(), loadDownloadButtons(), loadTitleMagnetLinks()]);
+  await Promise.all([loadGlobalTheme(), loadDownloadButtons(), loadTitleMagnetLinks(), loadTitleDirectLinks()]);
 }
 $('loginForm').addEventListener('submit', async event => {
   event.preventDefault();
@@ -402,6 +494,20 @@ $('titleMagnetList').addEventListener('click', event => {
   if (toggle) toggleTitleMagnet(toggle.dataset.magnetToggle);
   if (del) deleteTitleMagnet(del.dataset.magnetDelete);
 });
+
+$('titleDirectForm').addEventListener('submit', saveTitleDirectLink);
+$('titleDirectList').addEventListener('click', event => {
+  const edit = event.target.closest('[data-direct-edit]');
+  const toggle = event.target.closest('[data-direct-toggle]');
+  const del = event.target.closest('[data-direct-delete]');
+  if (edit) editTitleDirectLink(edit.dataset.directEdit);
+  if (toggle) toggleTitleDirectLink(toggle.dataset.directToggle);
+  if (del) deleteTitleDirectLink(del.dataset.directDelete);
+});
+$('directQuality').addEventListener('change', () => {
+  $('directButtonText').value = `Download ${$('directQuality').value}`;
+});
+
 (async () => {
   if (!supabaseConfigured || !supabase) return;
   try {
