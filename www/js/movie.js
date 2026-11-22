@@ -133,27 +133,72 @@ async function renderAuthorizedMagnetLink() {
   if (!host) return;
   host.replaceChildren();
   host.classList.add('hidden');
-  if (!supabaseConfigured || !supabase || !/^\d+$/.test(String(currentId))) return;
+  if (!supabaseConfigured || !supabase || !/^\\d+$/.test(String(currentId))) return;
   try {
     const { data, error } = await supabase.from('title_magnet_links')
       .select('title,quality,magnet_uri,is_active')
       .eq('tmdb_id', Number(currentId)).eq('media_type', currentType).eq('is_active', true).maybeSingle();
     if (error || !data?.magnet_uri) return;
     const magnet = String(data.magnet_uri).trim();
-    if (!/^magnet:\?xt=urn:btih:(?:[a-f0-9]{40}|[a-z2-7]{32})(?:&|$)/i.test(magnet)) return;
-    const link = document.createElement('a');
-    link.className = 'download-button';
-    link.href = magnet;
-    link.setAttribute('aria-label', `Download ${getTitle(currentTitle)} via magnet link`);
-    const icon = document.createElement('span'); icon.setAttribute('aria-hidden', 'true'); icon.textContent = '🧲';
-    const label = document.createElement('span'); label.textContent = `Download via Magnet${data.quality ? ` · ${data.quality}` : ''}`;
-    const arrow = document.createElement('b'); arrow.setAttribute('aria-hidden', 'true'); arrow.textContent = '↗';
-    link.append(icon, label, arrow);
-    host.appendChild(link);
+    if (!/^magnet:\\?xt=urn:btih:(?:[a-f0-9]{40}|[a-z2-7]{32})(?:&|$)/i.test(magnet)) return;
+
+    const heading = document.createElement('strong');
+    heading.className = 'title-magnet-heading';
+    heading.textContent = 'Authorized download';
+    heading.style.flexBasis = '100%';
+    host.appendChild(heading);
+
+    const download = document.createElement('a');
+    download.className = 'download-button';
+    download.href = magnet;
+    download.setAttribute('aria-label', `Download ${getTitle(currentTitle)} via magnet link`);
+    const icon = document.createElement('span');
+    icon.setAttribute('aria-hidden', 'true');
+    icon.textContent = '🧲';
+    const label = document.createElement('span');
+    label.textContent = `Download Magnet${data.quality ? ` · ${data.quality}` : ''}`;
+    const arrow = document.createElement('b');
+    arrow.setAttribute('aria-hidden', 'true');
+    arrow.textContent = '↗';
+    download.append(icon, label, arrow);
+    host.appendChild(download);
+
+    const copy = document.createElement('button');
+    copy.type = 'button';
+    copy.className = 'secondary-button';
+    copy.textContent = 'Copy Link';
+    copy.addEventListener('click', async () => {
+      const status = host.querySelector('.title-magnet-status');
+      try {
+        if (navigator.clipboard?.writeText) {
+          await navigator.clipboard.writeText(magnet);
+        } else {
+          const input = document.createElement('textarea');
+          input.value = magnet;
+          input.style.position = 'fixed';
+          input.style.opacity = '0';
+          document.body.appendChild(input);
+          input.select();
+          const copied = document.execCommand('copy');
+          input.remove();
+          if (!copied) throw new Error('Clipboard unavailable');
+        }
+        status.textContent = 'Magnet link copied.';
+      } catch (_) {
+        status.textContent = 'Could not copy automatically. Use Download Magnet to open your torrent app.';
+      }
+    });
+    host.appendChild(copy);
+
     const note = document.createElement('small');
     note.className = 'title-magnet-note';
     note.textContent = 'Opens in a compatible torrent app. Only use downloads you are authorized to access.';
     host.appendChild(note);
+    const status = document.createElement('small');
+    status.className = 'title-magnet-note title-magnet-status';
+    status.setAttribute('role', 'status');
+    status.setAttribute('aria-live', 'polite');
+    host.appendChild(status);
     host.classList.remove('hidden');
   } catch (_) {
     // Magnet downloads are optional and must never interrupt the title details/player.
