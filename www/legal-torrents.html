@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#090a0f">
+<meta name="description" content="Find public-domain and Creative Commons licensed films with torrent files on APLEX Movies.">
+<title>Legal Torrents — APLEX Movies</title>
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="assets/styles.css?v=20261122-legal">
+<style>
+.legal-hero{padding:clamp(26px,5vw,52px);margin:28px 0 26px;border:1px solid #30313d;border-radius:20px;background:radial-gradient(ellipse at 88% 10%,#452035 0,transparent 42%),linear-gradient(120deg,#171923,#0f1017)}
+.legal-hero h1{font-size:clamp(32px,6vw,54px);margin:0 0 12px}.legal-hero h1 span{color:var(--green)}.legal-hero p{color:#b4b6c3;max-width:680px;margin-bottom:0}
+.legal-search{display:flex;gap:10px;padding:10px;border:1px solid #343643;border-radius:14px;background:#11131b;margin:24px 0 10px}.legal-search input{flex:1;min-width:0;background:transparent;border:0;outline:0;color:#fff;padding:8px 10px}.legal-search button{border:0;border-radius:9px;padding:10px 18px;background:var(--red);color:#fff;font-weight:800}
+.legal-note{padding:14px 16px;border:1px solid #354638;border-radius:12px;background:#111a17;color:#b9d8c6;font-size:12px;margin:16px 0 28px}
+.legal-results{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:22px 0 60px}.legal-card{padding:18px;border:1px solid #2c2e39;border-radius:14px;background:#11131b}.legal-card h3{margin:0 0 7px;font-size:17px}.legal-meta{color:#a4a6b4;font-size:11px;margin-bottom:12px}.legal-license{display:inline-block;color:#b9e8ca;background:#14241c;border:1px solid #2e5840;border-radius:999px;padding:4px 8px;font-size:10px;margin-bottom:14px}.legal-actions{display:flex;flex-wrap:wrap;gap:9px}.legal-actions a{font-size:11px}.legal-status{color:#b0b2bf;padding:18px 0;min-height:60px}.legal-empty{color:#9da0af;padding:18px 0}
+@media(max-width:700px){.legal-results{grid-template-columns:1fr}.legal-search{flex-wrap:wrap}.legal-search input{flex-basis:100%}.legal-search button{width:100%}.main-nav{gap:13px;font-size:11px}}
+</style>
+</head>
+<body>
+<div class="top-strip"><span class="live-dot"></span> APLEX CINEMA <span class="strip-muted">/ PUBLIC-DOMAIN & CREATIVE COMMONS</span></div>
+<header class="site-header"><div class="container header-inner">
+<a class="brand" href="index.html"><span class="brand-icon"><img src="assets/favicon.png" alt="" width="43" height="43"></span><span>APLEX <b>MOVIES</b><small>YOUR NEXT WATCH STARTS HERE</small></span></a>
+<nav class="main-nav"><a href="index.html">Home</a><a class="active" href="legal-torrents.html">Legal Torrents</a></nav>
+</div></header>
+<main class="container main-content">
+<section class="legal-hero"><p class="eyebrow"><span class="eyebrow-line"></span> LEGAL DOWNLOAD LIBRARY</p><h1>Watch free.<br><span>Download legally.</span></h1><p>Search Internet Archive for films listed under Public Domain or selected Creative Commons licences. Only catalogue records with an accepted licence and a torrent file are shown.</p></section>
+<form class="legal-search" id="legalSearch"><input id="legalQuery" type="search" minlength="2" placeholder="Search a film title…" autocomplete="off" required><button type="submit">Search legal films ↗</button></form>
+<div class="legal-note"><strong>Licence reminder:</strong> A catalogue licence is not a guarantee that every included element is rights-cleared in every country. Open the source record and review its licence, attribution and reuse conditions before downloading or sharing.</div>
+<div class="section-head"><div><p class="eyebrow"><span class="eyebrow-line"></span> VERIFIED CATALOGUE FILTER</p><h2>Legal torrent results<span class="red-dot">.</span></h2></div></div>
+<div id="legalStatus" class="legal-status" role="status" aria-live="polite">Enter a movie title above to search the legal catalogue.</div>
+<div id="legalResults" class="legal-results"></div>
+</main>
+<footer class="site-footer"><div class="container footer-inner"><a class="footer-brand" href="index.html">APLEX<span>+</span> MOVIES</a><div class="footer-links"><a href="index.html">Home</a><a href="legal-torrents.html">Legal Torrents</a></div><small>© <span id="year"></span> APLEX Movies.</small></div></footer>
+<script>document.getElementById('year').textContent=new Date().getFullYear();</script>
+<script type="module" src="js/theme.js"></script><script type="module" src="js/legal-torrents.js"></script>
+</body></html>
