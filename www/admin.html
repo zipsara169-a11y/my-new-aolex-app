@@ -44,6 +44,28 @@
     </section>
     <div class="admin-list-card"><div class="card-subhead"><h3>Title download links</h3><span id="titleMagnetCount" class="muted small">Loading…</span></div><div id="titleMagnetList" class="admin-ad-list"><div class="loading-line">Loading title download links…</div></div><div id="titleMagnetListMessage" class="form-message" role="status"></div></div>
   </section>
+
+  <section class="admin-pane downloads-admin-pane" id="titleDirectPane">
+    <div class="admin-toolbar"><div><p class="eyebrow">TMDB-MATCHED DIRECT LINKS</p><h2>Direct download links</h2><p class="muted">Add an authorized HTTP/HTTPS file URL for a specific TMDB movie or TV title. Visitors see only enabled links on the matching title page.</p></div></div>
+    <div id="titleDirectMigrationNotice" class="notice warning hidden">Run <code>website-source/supabase-title-direct-links-migration.sql</code> in Supabase SQL Editor, then reload this page.</div>
+    <section class="editor-card" id="titleDirectEditor">
+      <div class="editor-heading"><div><p class="eyebrow">DIRECT DOWNLOAD EDITOR</p><h2>Add a title download</h2></div></div>
+      <form id="titleDirectForm" class="editor-form">
+        <div class="form-grid">
+          <label>TMDB title ID <span class="required">*</span><input id="directTmdbId" type="number" min="1" step="1" required placeholder="e.g. 550"><small class="field-help">The number in movie.html?id=550.</small></label>
+          <label>Title type <span class="required">*</span><select id="directMediaType" required><option value="movie">Movie</option><option value="tv">TV Show</option></select></label>
+          <label class="span-2">Exact movie / show title <span class="required">*</span><input id="directTitle" maxlength="200" required placeholder="Title from TMDB"></label>
+          <label>Quality <span class="required">*</span><select id="directQuality" required><option value="480p">480p</option><option value="720p">720p</option><option value="1080p" selected>1080p</option><option value="4K">4K</option><option value="Other">Other</option></select></label>
+          <label>Button label<input id="directButtonText" maxlength="80" value="Download 1080p" placeholder="Download 1080p"></label>
+          <label class="span-2">Direct download URL <span class="required">*</span><input id="directUrl" type="url" inputmode="url" required placeholder="https://your-authorized-host.example/file.mp4"><small class="field-help">Use a direct URL for a file you own or are licensed to distribute. Do not use a page that disguises an unauthorized copy.</small></label>
+          <label class="featured-check span-2"><input id="directRightsConfirm" type="checkbox" required><span><strong>I own this content or have permission to distribute it.</strong><small>Only confirmed, authorized links should be published.</small></span></label>
+        </div>
+        <div class="editor-actions"><button id="saveTitleDirectBtn" class="primary-button" type="submit">Save direct link ↗</button></div>
+        <div id="titleDirectFormMessage" class="form-message" role="status"></div>
+      </form>
+    </section>
+    <div class="admin-list-card"><div class="card-subhead"><h3>TMDB-linked direct links</h3><span id="titleDirectCount" class="muted small">Loading…</span></div><div id="titleDirectList" class="admin-ad-list"><div class="loading-line">Loading direct links…</div></div><div id="titleDirectListMessage" class="form-message" role="status"></div></div>
+  </section>
 </section></main>
 <footer class="site-footer"><div class="container footer-inner"><a class="footer-brand" href="index.html">APLEX<span>+</span> MOVIES</a><p>Seasonal themes and player download links are managed here.</p><small>© <span id="year"></span> APLEX Movies Admin.</small></div></footer><script type="module" src="js/theme.js"></script><script type="module" src="js/admin.js"></script>  <script src="js/mobile-bridge.js"></script>
 </body></html>
