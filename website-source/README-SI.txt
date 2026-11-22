@@ -19,6 +19,7 @@ APLEX MOVIES — Automatic Catalogue Update (සිංහල Setup Guide)
 - supabase-theme-migration.sql  Existing project-க்கு global theme setting enable කරයි
 - supabase-clean-ads.sql      Existing project-ல் பழைய ad table/data-ஐ நீக்கி download links மட்டும் வைத்திருக்கும் migration
 - supabase-title-magnet-migration.sql  Movie/TV title ID අනුව අවසර ලත් magnet links සුරකින database migration
+- supabase-title-direct-links-migration.sql  TMDB ID අනුව 480p/720p/1080p/4K direct URL links සුරකින migration
 - _redirects                 Netlify clean /admin route
 
 1. TMDB API KEY එක සකස් කිරීම
@@ -105,3 +106,12 @@ WHATSAPP SHARE PREVIEW + APLEX CINEMA REDESIGN (2026)
 TESTING NOTES
 - Local syntax/JSON/ZIP checks කරන්න පුළුවන් නමුත් WhatsApp preview cache කිරීම සහ deployed Vercel rewrite behavior production deploy එකේදී පරීක්ෂා කළ යුතුය.
 - WhatsApp පැරණි preview එකක් cache කර තිබුණොත් අලුත් URL එකක් (එකම title එකට share route එක නැවත සෑදීම අවශ්‍ය නොවේ; query parameter එකක් එක්කර test කරන්න) යොදා test කළ හැක.
+
+
+6. TMDB ID අනුව Direct Download Links
+-------------------------------------
+1. Supabase SQL Editor එකේ website-source/supabase-title-direct-links-migration.sql file එකේ සම්පූර්ණ SQL එක Run කරන්න.
+2. /admin වෙත ගොස් Direct download links කොටසට යන්න.
+3. TMDB ID, Movie/TV type, title, quality සහ ඔබට බෙදාහැරීමට අවසර ඇති direct HTTPS URL එක ඇතුළත් කරන්න.
+4. Rights confirmation එක tick කර Save direct link කරන්න.
+5. එම TMDB ID එකේ detail page එක විවෘත කළ විට active quality buttons පෙන්වයි. Link එක නැත්නම් section එක සඟවයි.
