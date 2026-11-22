@@ -205,6 +205,116 @@ async function renderAuthorizedMagnetLink() {
     host.classList.add('hidden');
   }
 }
+const IA_ALLOWED_LICENSES = [
+  /^https?:\/\/creativecommons\.org\/publicdomain\/(?:zero|mark)\/1\.0\/?$/i,
+  /^https?:\/\/creativecommons\.org\/licenses\/(?:by|by-sa)\/(?:[234]\.0|1\.0)\/?$/i
+];
+function normalizeArchiveTitle(value) {
+  return String(value || '').normalize('NFKD').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+}
+function archiveLicenseAllowed(value) {
+  const licenses = Array.isArray(value) ? value : [value];
+  return licenses.map(x => String(x || '').trim()).some(url => IA_ALLOWED_LICENSES.some(pattern => pattern.test(url)));
+}
+async function renderArchiveLegalTorrents() {
+  const host = document.getElementById('titleMagnetSlot');
+  if (!host || !currentTitle || currentType !== 'movie') return;
+  // A title-specific link explicitly supplied by an authorized distributor takes priority.
+  if (!host.classList.contains('hidden')) return;
+  host.replaceChildren();
+  host.classList.remove('hidden');
+  const status = document.createElement('small');
+  status.className = 'title-magnet-note';
+  status.setAttribute('role', 'status');
+  status.setAttribute('aria-live', 'polite');
+  status.textContent = 'Searching public-domain and Creative Commons torrent catalogues…';
+  host.appendChild(status);
+  try {
+    const title = getTitle(currentTitle);
+    const year = Number(String(getDate(currentTitle)).slice(0, 4)) || 0;
+    const query = 'title:"' + title.replace(/["\\]/g, ' ') + '" AND mediatype:movies';
+    const searchUrl = new URL('https://archive.org/advancedsearch.php');
+    searchUrl.searchParams.set('q', query);
+    ['identifier', 'title', 'year'].forEach(field => searchUrl.searchParams.append('fl[]', field));
+    searchUrl.searchParams.set('rows', '12');
+    searchUrl.searchParams.set('page', '1');
+    searchUrl.searchParams.set('output', 'json');
+    const searchResponse = await fetch(searchUrl.toString());
+    if (!searchResponse.ok) throw new Error('Archive search is temporarily unavailable.');
+    const searchData = await searchResponse.json();
+    const docs = Array.isArray(searchData.response?.docs) ? searchData.response.docs : [];
+    const targetTitle = normalizeArchiveTitle(title);
+    const matching = docs.filter(item => {
+      const candidateTitle = normalizeArchiveTitle(item.title);
+      const sameTitle = candidateTitle === targetTitle;
+      const candidateYear = Number(item.year) || 0;
+      return sameTitle && (!year || !candidateYear || candidateYear === year);
+    }).slice(0, 8);
+    const verified = [];
+    for (const item of matching) {
+      const metaResponse = await fetch('https://archive.org/metadata/' + encodeURIComponent(item.identifier));
+      if (!metaResponse.ok) continue;
+      const record = await metaResponse.json();
+      const metadata = record.metadata || {};
+      if (!archiveLicenseAllowed(metadata.licenseurl)) continue;
+      const files = Array.isArray(record.files) ? record.files : [];
+      const torrent = files.find(file => typeof file.name === 'string' && file.name.toLowerCase() === (item.identifier + '_archive.torrent').toLowerCase())
+        || files.find(file => typeof file.name === 'string' && file.name.toLowerCase().endsWith('.torrent'));
+      if (!torrent) continue;
+      verified.push({
+        identifier: item.identifier,
+        title: metadata.title || item.title || title,
+        year: metadata.year || item.year || '',
+        license: (Array.isArray(metadata.licenseurl) ? metadata.licenseurl[0] : metadata.licenseurl),
+        torrentUrl: 'https://archive.org/download/' + encodeURIComponent(item.identifier) + '/' + encodeURIComponent(torrent.name)
+      });
+      if (verified.length >= 3) break;
+    }
+    host.replaceChildren();
+    if (!verified.length) {
+      host.classList.add('hidden');
+      return;
+    }
+    const heading = document.createElement('strong');
+    heading.className = 'title-magnet-heading';
+    heading.textContent = 'Legal torrent matches';
+    heading.style.flexBasis = '100%';
+    host.appendChild(heading);
+    verified.forEach(item => {
+      const card = document.createElement('div');
+      card.className = 'download-manager';
+      card.style.flexBasis = '100%';
+      const name = document.createElement('strong');
+      name.textContent = item.title + (item.year ? ' (' + item.year + ')' : '');
+      const license = document.createElement('small');
+      license.className = 'title-magnet-note';
+      license.textContent = 'Archive-listed licence: ' + item.license;
+      const link = document.createElement('a');
+      link.className = 'download-button';
+      link.href = item.torrentUrl;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      link.textContent = 'Download .torrent file';
+      const source = document.createElement('a');
+      source.href = 'https://archive.org/details/' + encodeURIComponent(item.identifier);
+      source.target = '_blank';
+      source.rel = 'noopener noreferrer';
+      source.textContent = 'View source and licence ↗';
+      source.style.display = 'block';
+      source.style.marginTop = '9px';
+      source.style.fontSize = '11px';
+      card.append(name, license, link, source);
+      host.appendChild(card);
+    });
+    const note = document.createElement('small');
+    note.className = 'title-magnet-note';
+    note.textContent = 'Matches are shown only when the Archive item lists a supported public-domain or Creative Commons licence. Check the item page and licence terms before downloading or sharing.';
+    host.appendChild(note);
+  } catch (_) {
+    host.replaceChildren();
+    host.classList.add('hidden');
+  }
+}
 function renderInfo(data) {
   const runtime = isTv() ? (data.episode_run_time?.[0] ? `${data.episode_run_time[0]} min / episode` : '—') : (data.runtime ? `${data.runtime} minutes` : '—');
   const genres = (data.genres || []).map(g => g.name).join(', ') || '—';
@@ -284,6 +394,7 @@ async function loadTMDBTitle(id, type) {
   renderSimilar(details.recommendations?.results || []);
   renderInfo(details);
   await renderAuthorizedMagnetLink();
+  await renderArchiveLegalTorrents();
   loading.classList.add('hidden');
   detail.classList.remove('hidden');
 }
