@@ -16,7 +16,8 @@ function render(items){
 async function search(title){
  resultsNode.replaceChildren();setStatus('Searching Internet Archive and checking licences…');
  try{
-  const params=new URLSearchParams({q:'title:"'+title.replace(/["\\]/g,' ')+'" AND mediatype:movies',rows:'30',page:'1',output:'json'});
+  const archiveQuery=title ? 'title:"'+title.replace(/["\\]/g,' ')+'" AND mediatype:movies' : 'mediatype:movies AND licenseurl:*';
+  const params=new URLSearchParams({q:archiveQuery,rows:title?'30':'80',page:'1',output:'json'});
   ['identifier','title','year'].forEach(field=>params.append('fl[]',field));
   const response=await fetch('https://archive.org/advancedsearch.php?'+params.toString());
   if(!response.ok)throw new Error('The public catalogue is temporarily unavailable.');
@@ -41,3 +42,4 @@ async function search(title){
  }catch(error){setStatus(error.message||'Search failed. Please try again later.');}
 }
 form.addEventListener('submit',event=>{event.preventDefault();const title=queryInput.value.trim();if(title.length<2){setStatus('Enter at least two characters.');return;}search(title);});
+search('');
